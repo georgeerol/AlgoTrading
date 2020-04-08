@@ -2,3 +2,5 @@ backtrader
 matplotlib
 click
 robin_stocks
+beautifulsoup4
+pandas
