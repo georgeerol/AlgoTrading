@@ -4,3 +4,5 @@ click
 robin_stocks
 beautifulsoup4
 pandas
+yfinance
+alpaca-trade-api
