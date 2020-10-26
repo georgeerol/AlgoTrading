@@ -23,6 +23,6 @@ cursor.execute("""
         FOREIGN KEY (stock_id) REFERENCES stock (id)
     )
 """)
-cursor.execute("INSERT INTO stock (symbol, company) VALUES ('ADBE', 'Adobe Inc.')")
-cursor.execute("INSERT INTO stock (symbol, company) VALUES ('VZ', 'Verizon')")
+#cursor.execute("INSERT INTO stock (symbol, company) VALUES ('ADBE', 'Adobe Inc.')")
+#cursor.execute("INSERT INTO stock (symbol, company) VALUES ('VZ', 'Verizon')")
 connection.commit()
