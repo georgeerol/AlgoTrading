@@ -6,3 +6,4 @@ beautifulsoup4
 pandas
 yfinance
 alpaca-trade-api
+crontab
