@@ -7,3 +7,6 @@ pandas
 yfinance
 alpaca-trade-api
 crontab
+fastapi
+uvicorn
+jinja2
