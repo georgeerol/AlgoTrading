@@ -11,3 +11,7 @@ fastapi
 uvicorn
 jinja2
 python-multipart
+schedule
+numpy==1.19.3
+tulipy
+pyrh
