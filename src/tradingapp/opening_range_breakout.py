@@ -1,10 +1,16 @@
+"""
+Opening Range Breakout Strategy
+Note:
+This script is meant to be schedule through the OS.
+"""
+
 import sqlite3
+from tradingapp import config
 import smtplib
 import ssl
 import alpaca_trade_api as tradeapi
 import datetime as dt
 from tradingapp.timezone import is_dst
-from tradingapp import config
 
 # Create a secure SSL context
 context = ssl.create_default_context()
@@ -29,18 +35,6 @@ cursor.execute("""
 
 stocks = cursor.fetchall()
 symbols = [stock['symbol'] for stock in stocks]
-symbols.append('WDFC')
-symbols.append('SOCL')
-symbols.append('IQ')
-symbols.append('DLB')
-symbols.append('MCHI')
-symbols.append('MSP')
-symbols.append('RAMP')
-symbols.append('SAGE')
-symbols.append('SCCO')
-symbols.append('SFIX')
-symbols.append('SOCL')
-symbols.append('WDFC')
 
 current_date = dt.date.today().isoformat()
 
@@ -76,8 +70,10 @@ for symbol in symbols:
             if symbol not in existing_order_symbols:
                 limit_price = after_opening_range_breakout.iloc[0]['close']
 
-                messages.append(f"Placing order for {symbol} at {limit_price}, closed above {opening_range_high}\n\n{after_opening_range_breakout.iloc[0]}\n\n")
-                print(f"Placing order for {symbol} at {limit_price}, closed above {opening_range_high} at {after_opening_range_breakout.iloc[0]}")
+                messages.append(
+                    f"Placing order for {symbol} at {limit_price}, closed above {opening_range_high}\n\n{after_opening_range_breakout.iloc[0]}\n\n")
+                print(
+                    f"Placing order for {symbol} at {limit_price}, closed above {opening_range_high} at {after_opening_range_breakout.iloc[0]}")
 
                 try:
                     api.submit_order(
@@ -99,3 +95,11 @@ for symbol in symbols:
                     print(f"Could not submit order {e}")
             else:
                 print(f"Already an order for {symbol}, skipping")
+
+with smtplib.SMTP_SSL(config.EMAIL_HOST, config.EMAIL_PORT, context=context) as server:
+    server.login(config.EMAIL_ADDRESS, config.EMAIL_PASSWORD)
+
+    email_message = f"Subject: Trade Notifications for {current_date}\n\n"
+    email_message += "\n".join(messages)
+
+    server.sendmail(config.EMAIL_ADDRESS, config.EMAIL_ADDRESS, email_message)
