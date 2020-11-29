@@ -24,8 +24,8 @@ def index(request: Request):
         from stock_price join stock on stock.id = stock_price.stock_id
         group by stock_id
         order by symbol
-        ) where date =?
-        """, (date.today().isoformat(),))
+        ) where date = (SELECT MAX(date) FROM stock_price)
+        """)
     elif stock_filter == 'new_closing_lows':
         cursor.execute("""
         select * from (
@@ -33,15 +33,29 @@ def index(request: Request):
         from stock_price join stock on stock.id = stock_price.stock_id
         group by stock_id
         order by symbol
-        ) where date =?
-        """, (date.today().isoformat(),))
+        ) where date = (SELECT MAX(date) FROM stock_price)
+        """)
     else:
         cursor.execute("""
             SELECT id, symbol, name FROM stock
             ORDER BY symbol;
         """)
     rows = cursor.fetchall()
-    return templates.TemplateResponse("index.html", {"request": request, "stocks": rows})
+
+    cursor.execute("""
+        SELECT symbol,rsi_14, sma_20,sma_50, close
+        FROM stock
+        JOIN stock_price on stock_price.stock_id = stock.id
+        where date = (SELECT MAX(date) FROM stock_price)
+    """)
+
+    indicator_rows = cursor.fetchall()
+    indicator_values = {}
+
+    for row in indicator_rows:
+        indicator_values[row['symbol']] = row
+    print(indicator_values)
+    return templates.TemplateResponse("index.html", {"request": request, "stocks": rows, "indicator_values": indicator_values})
 
 
 @app.get("/stock/{symbol}")
@@ -98,8 +112,8 @@ def strategy(request: Request, strategy_id):
     strategy = cursor.fetchone()
 
     cursor.execute("""
-        SELECT symbol, name
-        FROM stock JOIN stock_strategy on stock_strategy.stock_id = stock.id
+        SELECT symbol, rsi_14, sma_20, sma_50, close
+        FROM stock JOIN stock_price ON stock_price.stock_id = stock.id
         WHERE strategy_id = ?
     """, (strategy_id,))
 
