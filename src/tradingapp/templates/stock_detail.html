@@ -16,7 +16,7 @@
   {
   "width": "100%",
   "height": 610,
-  "symbol": "{{stock.exchange}}:{{stock.symbol}}",
+  "symbol": "{% if stock.exchange == 'ARCA' %}AMEX{% else %}{{ stock.exchange }} {% endif %}:{{ stock.symbol }} ",
   "interval": "D",
   "timezone": "America/New_York",
   "theme": "light",
